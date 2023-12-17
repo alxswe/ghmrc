@@ -1,0 +1,8 @@
+.env
+.env.docker
+.env.secret
+# compose.yaml
+# .docker
+# .github
+.tox
+.secret

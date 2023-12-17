@@ -1,0 +1,6 @@
+.prettierignore
+.gitignore
+LICENSE
+*.(md|txt|json|ini)
+.env*
+.docker

@@ -1,0 +1,52 @@
+{
+    "folders": [
+        {
+            "path": ".",
+            "name": "GH - Multiple Repository Cloner"
+        }
+    ],
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "start-be",
+                "command": "source activate_env ghrepo && honcho start",
+                "type": "shell",
+                "isBackground": true,
+                "options": {
+                    "cwd": "${workspaceFolder}/django"
+                }
+            },
+            {
+                "label": "start-fe",
+                "command": "yarn dev",
+                "type": "shell",
+                "isBackground": true,
+                "options": {
+                    "cwd": "${workspaceFolder}/nextjs"
+                }
+            },
+            {
+                "label": "start",
+                "dependsOn": ["start-be", "start-fe"],
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared",
+                    "showReuseMessage": true,
+                    "clear": false
+                }
+            }
+        ]
+    },
+    "settings": {
+        "python.defaultInterpreterPath": "/opt/venvs/ghrepo/bin/python",
+        "yaml.schemas": {
+            "https://json.schemastore.org/github-workflow.json": [
+                "file:///home/yuri/Coding/ghmrc/.github/django.yaml",
+                "file:///home/yuri/Coding/ghmrc/.github/next.yaml"
+            ]
+        }
+    }
+}

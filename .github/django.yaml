@@ -1,0 +1,138 @@
+name: django-ci
+run-name: ${{ github.actor }} is running Django CI 🚀
+
+on:
+    push:
+        branches:
+            - $default-branch
+    pull_request:
+        branches:
+            - $default-branch
+    workflow_call:
+    workflow_dispatch:
+
+jobs:
+    generate-matrix:
+        runs-on: ubuntu-latest
+        outputs:
+            matrix: ${{ steps.set-matrix.outputs.matrix }}
+        steps:
+            - name: Set matrix
+              id: set-matrix
+              run: |
+                  echo "::set-output name=matrix::{\"database\": [\"sqlite\", \"postgres\"], \"python\": [\"3.10\", \"3.11\"], \"django\": [\"4.2\"]}"
+
+    lint:
+        runs-on: ubuntu-latest
+        environment: production
+        defaults:
+            run:
+                working-directory: django
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: "3.x"
+                  cache: "pip"
+
+            - name: Install tools needed
+              run: pip install tox
+
+            - name: Check migrations
+              run: tox -e migrations
+
+    test:
+        needs: generate-matrix
+        timeout-minutes: 15
+        runs-on: ubuntu-latest
+        environment: production
+        services:
+            redis: # must test redis cache
+                image: redis:latest
+                ports:
+                    - 6379:6379
+                options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+            memcached: # must test memcached cache
+                image: memcached:latest
+                ports:
+                    - 11211:11211
+                options: --health-cmd "nc -z localhost 11211" --health-interval 10s --health-timeout 5s --health-retries 5
+            postgres: # must test postgres cache
+                image: postgres:latest
+                env:
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                    POSTGRES_DB: postgres
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            max-parallel: 1
+            fail-fast: false
+            matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+
+        defaults:
+            run:
+                working-directory: django
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Setup python v${{ matrix.python }}
+              uses: actions/setup-python@v4
+              with:
+                  python-version: "${{ matrix.python }}"
+                  cache: pip
+
+            - name: Install tools needed
+              run: |
+                  sudo apt install libpq-dev -yqq
+
+            - name: Create virtualenv
+              run: |
+                  python -m venv ./venv
+                  source ./venv/bin/activate
+                  echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
+                  echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
+
+            - name: Cache virtualenv
+              uses: actions/cache@v3
+              with:
+                  key: venv-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('requirements.txt') }}-${{ hashFiles('requirements-test.txt') }}
+                  path: ./venv
+
+            - name: Install requirements
+              run: |
+                  pip install -r requirements.txt
+                  pip install -r requirements-test.txt
+
+            - name: Install django
+              run: |
+                  pip install "Django==${{ matrix.django }}.*"
+
+            - name: Run tests
+              env:
+                  DEBUG: 0
+                  DATABASE_ENGINE: ${{ matrix.database }}
+                  GITHUB_WORKFLOW: 1
+              run: |
+                  coverage run --append --source='.' runtests.py
+                  coverage report --show-missing
+                  coverage xml -o ./coverage.xml
+
+            - name: Upload coverage to Codecov
+              if: ${{ !github.event.act }}
+              uses: codecov/codecov-action@v3
+              env:
+                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+              with:
+                  fail_ci_if_error: false
+                  files: ./coverage.xml
+                  flags: unittests
+                  verbose: true

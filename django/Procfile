@@ -1,0 +1,3 @@
+django: daphne core.asgi:application -b 0.0.0.0 -p 8000
+celery: celery -A core worker -B -E -l INFO
+flower: celery -A core flower

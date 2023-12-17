@@ -1,0 +1,60 @@
+{
+  "author": "zackkh <44476801+zackkh@users.noreply.github.com>",
+  "dependencies": {
+    "@headlessui/react": "^1.7.17",
+    "@heroicons/react": "^2.0.18",
+    "@primer/octicons-react": "^19.8.0",
+    "axios": "^1.6.1",
+    "axios-clt": "^1.0.2",
+    "clsx": "^2.0.0",
+    "dexie": "^3.2.4",
+    "dexie-react-hooks": "^1.1.7",
+    "eslint-define-config": "^2.0.0",
+    "framer-motion": "^10.16.5",
+    "isomorphic-dompurify": "^1.9.0",
+    "moment": "^2.29.4",
+    "next": "14.0.2",
+    "next-auth": "^4.24.5",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-spinners": "^0.13.8",
+    "usehooks-ts": "^2.9.1",
+    "uuid": "^9.0.1",
+    "websocket-ts": "^2.1.5"
+  },
+  "description": "Multiple respository cloner",
+  "devDependencies": {
+    "@types/lodash": "^4.14.201",
+    "@types/node": "^20",
+    "@types/pluralize": "^0.0.33",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8.54.0",
+    "eslint-config-next": "14.0.2",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "lodash": "^4.17.21",
+    "pluralize": "^8.0.0",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "license": "MIT",
+  "name": "ghmrc",
+  "private": true,
+  "repository": "git@github.com:alxswe/ghmrc.git",
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "start": "next start"
+  },
+  "version": "1.0.0"
+}
