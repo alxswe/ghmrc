@@ -12,11 +12,11 @@ on:
 
 jobs:
     ci-django:
-        uses: ./.github/workflows/django.yaml@master
+        uses: ./.github/workflows/django.yaml
         secrets: inherit
 
     ci-next:
-        uses: ./.github/workflows/next.yaml@master
+        uses: ./.github/workflows/next.yaml
         secrets: inherit
 
     cd:
